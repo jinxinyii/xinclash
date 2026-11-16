@@ -5,12 +5,9 @@ declare(strict_types=1);
 try {
     $root = dirname(__DIR__);
     $router = require $root . '/bootstrap/app.php';
-    $appConfig = require $root . '/config/app.php';
-    $basePath = parse_url($appConfig['url'], PHP_URL_PATH) ?: '';
     $router->dispatch(
         $_SERVER['REQUEST_METHOD'] ?? 'GET',
-        $_SERVER['REQUEST_URI'] ?? '/',
-        $basePath
+        $_SERVER['REQUEST_URI'] ?? '/'
     );
 } catch (Throwable $exception) {
     error_log($exception->__toString());

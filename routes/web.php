@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\DashboardController;
 use App\Core\Router;
 use App\Helpers\Database;
-use App\Helpers\Security;
 use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 
@@ -75,21 +75,6 @@ return static function (Router $router): void {
     $router->get('/dashboard', static function (): void {
         $pdo = Database::connection();
         AuthMiddleware::requireAuth($pdo);
-
-        $name = Security::escape($_SESSION['user_name'] ?? 'Player');
-        $csrfToken = Security::csrfToken();
-
-        echo '<!doctype html>';
-        echo '<html lang="en">';
-        echo '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">';
-        echo '<title>Dashboard | xinClash</title></head><body>';
-        echo '<main>';
-        echo '<h1>Welcome back, ' . $name . '!</h1>';
-        echo '<p>Your xinClash account is ready.</p>';
-        echo '<form method="post" action="' . Security::escape((require dirname(__DIR__) . '/config/app.php')['url']) . '/logout">';
-        echo '<input type="hidden" name="_token" value="' . Security::escape($csrfToken) . '">';
-        echo '<button type="submit">Log out</button>';
-        echo '</form>';
-        echo '</main></body></html>';
+        (new DashboardController($pdo))->index();
     });
 };

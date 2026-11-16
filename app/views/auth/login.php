@@ -6,6 +6,7 @@ use App\Helpers\Security;
 
 $config = require dirname(__DIR__, 3) . '/config/app.php';
 $baseUrl = rtrim($config['url'], '/');
+$old = $old ?? [];
 
 ?>
 <!doctype html>
@@ -39,23 +40,18 @@ $baseUrl = rtrim($config['url'], '/');
 
             <form method="post" action="<?= Security::escape($baseUrl) ?>/login" class="space-y-5">
                 <input type="hidden" name="_token" value="<?= Security::escape($csrfToken) ?>">
-
                 <div>
                     <label for="email" class="mb-2 block text-sm font-medium text-slate-200">Email address</label>
                     <input id="email" name="email" type="email" autocomplete="email" required maxlength="254"
                         value="<?= Security::escape($old['email'] ?? '') ?>"
                         class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
                 </div>
-
                 <div>
                     <label for="password" class="mb-2 block text-sm font-medium text-slate-200">Password</label>
                     <input id="password" name="password" type="password" autocomplete="current-password" required
                         class="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20">
                 </div>
-
-                <button type="submit" class="w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">
-                    Sign in
-                </button>
+                <button type="submit" class="w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">Sign in</button>
             </form>
 
             <p class="mt-6 text-center text-sm text-slate-400">
