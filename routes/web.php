@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\GameAccountController;
 use App\Core\Router;
 use App\Helpers\Database;
 use App\Helpers\Response;
@@ -76,5 +77,35 @@ return static function (Router $router): void {
         $pdo = Database::connection();
         AuthMiddleware::requireAuth($pdo);
         (new DashboardController($pdo))->index();
+    });
+
+    $router->get('/accounts', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new GameAccountController($pdo))->index();
+    });
+
+    $router->get('/accounts/add', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new GameAccountController($pdo))->showAdd();
+    });
+
+    $router->post('/accounts/store', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new GameAccountController($pdo))->store();
+    });
+
+    $router->get('/accounts/show', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new GameAccountController($pdo))->show();
+    });
+
+    $router->post('/accounts/sync', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new GameAccountController($pdo))->sync();
     });
 };
