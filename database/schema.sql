@@ -138,6 +138,7 @@ CREATE TABLE
         coc_account_id BIGINT UNSIGNED NOT NULL,
         upgrade_item_id BIGINT UNSIGNED NOT NULL,
         current_level TINYINT UNSIGNED NOT NULL DEFAULT 0,
+        api_max_level TINYINT UNSIGNED NULL,
         target_level TINYINT UNSIGNED NULL,
         data_source ENUM ('api', 'manual') NOT NULL DEFAULT 'api',
         last_synced_at DATETIME NULL,
@@ -152,6 +153,10 @@ CREATE TABLE
         CONSTRAINT chk_account_item_target CHECK (
             target_level IS NULL
             OR target_level >= current_level
+        ),
+        CONSTRAINT chk_account_item_api_max CHECK (
+            api_max_level IS NULL
+            OR api_max_level >= 1
         )
     ) ENGINE = InnoDB;
 

@@ -69,7 +69,6 @@ final class SupercellApiService
             try {
                 $body = json_encode($payload, JSON_THROW_ON_ERROR);
             } catch (JsonException $exception) {
-                curl_close($handle);
                 throw new SupercellApiException('Could not prepare the API request.');
             }
 

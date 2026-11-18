@@ -18,7 +18,7 @@ final class Response
 
     public static function render(string $view, array $data = []): void
     {
-        $viewPath = dirname(__DIR__) . '/Views/' . $view . '.php';
+        $viewPath = dirname(__DIR__) . '/views/' . strtolower($view) . '.php';
 
         if (!is_file($viewPath)) {
             http_response_code(500);

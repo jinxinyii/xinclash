@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\GameAccount;
+use App\Models\PlayerSnapshot;
+use App\Models\SyncLog;
 use PDO;
 use RuntimeException;
 use Throwable;
@@ -12,16 +14,26 @@ use Throwable;
 final class PlayerSyncService
 {
     private GameAccount $accounts;
+    private PlayerSnapshot $snapshots;
+    private SyncLog $logs;
+    private UpgradeTrackingService $upgradeTracking;
 
     public function __construct(
         private readonly PDO $pdo,
         private readonly SupercellApiService $api
     ) {
         $this->accounts = new GameAccount($pdo);
+        $this->snapshots = new PlayerSnapshot($pdo);
+        $this->logs = new SyncLog($pdo);
+        $this->upgradeTracking = new UpgradeTrackingService($pdo);
     }
 
-    public function sync(int $accountId, int $userId): array
+    public function sync(int $accountId, int $userId, string $syncType = 'manual'): array
     {
+        if (!in_array($syncType, ['manual', 'automatic'], true)) {
+            throw new RuntimeException('Invalid synchronization type.');
+        }
+
         $account = $this->accounts->findByIdForUser($accountId, $userId);
 
         if ($account === null || (int) $account['is_active'] !== 1) {
@@ -33,32 +45,34 @@ final class PlayerSyncService
         }
 
         $startedAt = date('Y-m-d H:i:s');
-        $statusCode = null;
 
         try {
             $profile = $this->api->getPlayer($account['player_tag']);
+
             $this->pdo->beginTransaction();
 
             $this->accounts->updateProfile($accountId, $userId, $profile);
-            $this->accounts->saveSnapshot($accountId, $userId, $profile);
-
-            $log = $this->pdo->prepare(
-                'INSERT INTO sync_logs
-                    (user_id, coc_account_id, sync_type, status, started_at,
-                     finished_at, http_status, items_updated)
-                 VALUES
-                    (:user_id, :account_id, \'manual\', \'success\',
-                     :started_at, CURRENT_TIMESTAMP, 200, 1)'
+            $this->snapshots->createFull($userId, $accountId, $profile);
+            $summary = $this->upgradeTracking->synchronizeApiItems(
+                $userId,
+                $accountId,
+                $profile
             );
-            $log->execute([
-                'user_id' => $userId,
-                'account_id' => $accountId,
-                'started_at' => $startedAt,
-            ]);
+
+            $this->logs->success(
+                $userId,
+                $accountId,
+                $syncType,
+                $startedAt,
+                (int) $summary['items_processed']
+            );
 
             $this->pdo->commit();
 
-            return $profile;
+            return [
+                'profile' => $profile,
+                'summary' => $summary,
+            ];
         } catch (Throwable $exception) {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
@@ -70,24 +84,15 @@ final class PlayerSyncService
 
             try {
                 $this->accounts->markSyncFailed($accountId, $userId);
-
-                $log = $this->pdo->prepare(
-                    'INSERT INTO sync_logs
-                        (user_id, coc_account_id, sync_type, status, started_at,
-                         finished_at, http_status, items_updated, error_code, error_message)
-                     VALUES
-                        (:user_id, :account_id, \'manual\', \'failed\',
-                         :started_at, CURRENT_TIMESTAMP, :http_status, 0,
-                         :error_code, :error_message)'
+                $this->logs->failure(
+                    $userId,
+                    $accountId,
+                    $syncType,
+                    $startedAt,
+                    $statusCode ?: null,
+                    $statusCode ? 'HTTP_' . $statusCode : 'SYNC_FAILED',
+                    $exception->getMessage()
                 );
-                $log->execute([
-                    'user_id' => $userId,
-                    'account_id' => $accountId,
-                    'started_at' => $startedAt,
-                    'http_status' => $statusCode ?: null,
-                    'error_code' => $statusCode ? 'HTTP_' . $statusCode : 'SYNC_FAILED',
-                    'error_message' => substr($exception->getMessage(), 0, 1000),
-                ]);
             } catch (Throwable $loggingException) {
                 error_log('xinClash sync failure could not be recorded: ' . $loggingException->__toString());
             }

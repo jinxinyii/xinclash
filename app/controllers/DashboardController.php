@@ -74,7 +74,7 @@ final class DashboardController
                     COALESCE(SUM(ui.category IN ('troop', 'super_troop')), 0) AS troops,
                     COALESCE(SUM(ui.category = 'spell'), 0) AS spells,
                     COALESCE(SUM(ui.category = 'hero'), 0) AS heroes,
-                    COALESCE(SUM(ui.max_level IS NOT NULL AND ai.current_level >= ui.max_level), 0) AS maxed_items
+                    COALESCE(SUM(COALESCE(ai.api_max_level, ui.max_level) IS NOT NULL AND ai.current_level >= COALESCE(ai.api_max_level, ui.max_level)), 0) AS maxed_items
                  FROM account_items ai
                  INNER JOIN upgrade_items ui ON ui.id = ai.upgrade_item_id
                  WHERE ai.user_id = :user_id AND ai.coc_account_id = :account_id"

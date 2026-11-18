@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\GameAccountController;
+use App\Controllers\UpgradeController;
 use App\Core\Router;
 use App\Helpers\Database;
 use App\Helpers\Response;
@@ -107,5 +108,54 @@ return static function (Router $router): void {
         $pdo = Database::connection();
         AuthMiddleware::requireAuth($pdo);
         (new GameAccountController($pdo))->sync();
+    });
+
+    $router->get('/upgrades', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new UpgradeController($pdo))->index();
+    });
+
+    $upgradeCategories = [
+        'defenses',
+        'traps',
+        'buildings',
+        'troops',
+        'spells',
+        'heroes',
+        'pets',
+        'equipment',
+    ];
+
+    foreach ($upgradeCategories as $category) {
+        $router->get('/upgrades/' . $category, static function () use ($category): void {
+            $pdo = Database::connection();
+            AuthMiddleware::requireAuth($pdo);
+            (new UpgradeController($pdo))->category($category);
+        });
+    }
+
+    $router->get('/upgrades/planner', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new UpgradeController($pdo))->planner();
+    });
+
+    $router->post('/upgrades/manual-level', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new UpgradeController($pdo))->saveManualLevel();
+    });
+
+    $router->post('/upgrades/planner/create', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new UpgradeController($pdo))->createPlan();
+    });
+
+    $router->post('/upgrades/planner/status', static function (): void {
+        $pdo = Database::connection();
+        AuthMiddleware::requireAuth($pdo);
+        (new UpgradeController($pdo))->updatePlan();
     });
 };

@@ -7,10 +7,22 @@
 
 :root {
     color-scheme: dark;
+    --coc-navy: #172b3b;
+    --coc-panel: #20394d;
+    --coc-panel-raised: #29485e;
+    --coc-gold: #f6c453;
+    --coc-gold-deep: #d99b24;
+    --coc-green: #62b957;
+    --coc-green-dark: #398b45;
+    --coc-blue: #58a9df;
+    --coc-stone: #d9c7a0;
+    --coc-text: #f4f6f8;
+    --coc-muted: #aab8c4;
 }
 
 html {
     scroll-behavior: smooth;
+    background: var(--coc-navy);
 }
 
 body {
@@ -18,5 +30,102 @@ body {
 }
 
 ::selection {
-    background: rgb(52 211 153 / 25%);
+    color: #172b3b;
+    background: var(--coc-gold);
+}
+
+/* Clash-inspired accents while preserving the original dark xinClash layout. */
+[class~="text-emerald-400"],
+[class~="text-emerald-300"],
+[class~="text-emerald-200"] {
+    color: var(--coc-gold) !important;
+}
+
+[class~="bg-emerald-400"],
+[class~="bg-emerald-500"] {
+    background-color: var(--coc-green) !important;
+    color: #102719 !important;
+}
+
+[class~="bg-emerald-300"] {
+    background-color: #78ca69 !important;
+    color: #102719 !important;
+}
+
+[class~="bg-emerald-400/10"],
+[class~="bg-emerald-500/10"],
+[class~="bg-emerald-950/30"] {
+    background-color: rgb(98 185 87 / 13%) !important;
+}
+
+[class~="border-emerald-400/20"],
+[class~="border-emerald-400/15"],
+[class~="border-emerald-400/30"],
+[class~="border-emerald-500/30"] {
+    border-color: rgb(246 196 83 / 38%) !important;
+}
+
+[class~="ring-emerald-400/15"] {
+    --tw-ring-color: rgb(246 196 83 / 25%) !important;
+}
+
+[class~="hover:bg-emerald-300"]:hover,
+[class~="hover:bg-emerald-400"]:hover {
+    background-color: var(--coc-green-dark) !important;
+    color: #ffffff !important;
+}
+
+[class~="hover:text-emerald-300"]:hover,
+[class~="hover:text-emerald-400"]:hover {
+    color: #ffda79 !important;
+}
+
+[class~="focus:border-emerald-400"]:focus,
+[class~="focus:border-emerald-500"]:focus {
+    border-color: var(--coc-gold) !important;
+}
+
+[class~="focus:ring-emerald-400/10"]:focus,
+[class~="focus:ring-emerald-500/20"]:focus {
+    --tw-ring-color: rgb(246 196 83 / 35%) !important;
+}
+
+[class~="bg-amber-400"],
+[class~="bg-amber-300"] {
+    background-color: var(--coc-gold) !important;
+    color: #33240a !important;
+}
+
+[class~="text-amber-200"],
+[class~="text-amber-300"] {
+    color: #ffd978 !important;
+}
+
+[class~="border-amber-400/15"] {
+    border-color: rgb(246 196 83 / 30%) !important;
+}
+
+[class~="bg-amber-400/10"],
+[class~="bg-amber-400/5"] {
+    background-color: rgb(246 196 83 / 10%) !important;
+}
+
+[class~="text-blue-300"],
+[class~="text-sky-300"] {
+    color: #7bc5f3 !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--coc-gold) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(246 196 83 / 18%);
+}
+
+button, a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--coc-gold);
+    outline-offset: 3px;
 }

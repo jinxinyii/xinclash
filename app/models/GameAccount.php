@@ -54,11 +54,11 @@ final class GameAccount
             'INSERT INTO coc_accounts
                 (user_id, player_tag, player_name, town_hall_level, exp_level,
                  trophies, best_trophies, is_verified, verified_at,
-                 last_synced_at, sync_status)
+                 last_synced_at, next_sync_at, sync_status)
              VALUES
                 (:user_id, :player_tag, :player_name, :town_hall_level, :exp_level,
                  :trophies, :best_trophies, 1, CURRENT_TIMESTAMP,
-                 CURRENT_TIMESTAMP, \'success\')'
+                 CURRENT_TIMESTAMP, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 6 HOUR), \'success\')'
         );
 
         $statement->execute([
@@ -84,6 +84,7 @@ final class GameAccount
                  trophies = :trophies,
                  best_trophies = :best_trophies,
                  last_synced_at = CURRENT_TIMESTAMP,
+                 next_sync_at = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 6 HOUR),
                  sync_status = \'success\'
              WHERE id = :account_id AND user_id = :user_id'
         );
@@ -119,7 +120,8 @@ final class GameAccount
     {
         $statement = $this->pdo->prepare(
             'UPDATE coc_accounts
-             SET sync_status = \'failed\'
+             SET sync_status = \'failed\',
+                 next_sync_at = DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 MINUTE)
              WHERE id = :account_id AND user_id = :user_id'
         );
         $statement->execute([

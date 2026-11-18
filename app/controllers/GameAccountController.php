@@ -11,6 +11,7 @@ use App\Services\PlayerSyncService;
 use App\Services\PlayerVerificationService;
 use App\Services\SupercellApiException;
 use App\Services\SupercellApiService;
+use App\Services\UpgradeTrackingService;
 use PDO;
 use PDOException;
 use Throwable;
@@ -92,10 +93,19 @@ final class GameAccountController
             $accountId = $this->accounts->createVerified($userId, $playerTag, $profile);
             $this->accounts->saveSnapshot($accountId, $userId, $profile);
 
+            $tracking = new UpgradeTrackingService($this->pdo);
+            $summary = $tracking->synchronizeApiItems($userId, $accountId, $profile);
+
             $this->pdo->commit();
 
             unset($playerToken);
-            Response::flash('success', 'Your Clash of Clans account has been connected and verified.');
+            Response::flash(
+                'success',
+                sprintf(
+                    'Your account is connected and verified. Imported %d upgrade items.',
+                    (int) $summary['items_processed']
+                )
+            );
             Response::redirect('/accounts/show?id=' . $accountId);
         } catch (\InvalidArgumentException $exception) {
             $this->renderAddError($exception->getMessage(), $tagInput);
@@ -174,9 +184,17 @@ final class GameAccountController
 
         try {
             $sync = new PlayerSyncService($this->pdo, $this->api);
-            $sync->sync((int) $accountId, $userId);
+            $result = $sync->sync((int) $accountId, $userId);
+            $summary = $result['summary'];
 
-            Response::flash('success', 'Player profile synchronized successfully.');
+            Response::flash(
+                'success',
+                sprintf(
+                    'Profile synchronized: %d items checked, %d level changes detected.',
+                    (int) $summary['items_processed'],
+                    (int) $summary['levels_changed']
+                )
+            );
             Response::redirect('/accounts/show?id=' . (int) $accountId);
         } catch (Throwable $exception) {
             error_log($exception->__toString());

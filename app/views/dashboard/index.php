@@ -57,14 +57,14 @@ $formatDate = static function (?string $value): string {
                 <span class="flex items-center gap-3"><span class="text-lg">⚔</span> Game accounts</span>
                 <span class="rounded-md bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">Open</span>
             </a>
-            <div class="flex items-center justify-between rounded-xl px-3 py-3 text-sm text-slate-500">
+            <a href="<?= Security::escape($baseUrl) ?>/upgrades" class="flex items-center justify-between rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-900 hover:text-white">
                 <span class="flex items-center gap-3"><span class="text-lg">⬆</span> Upgrade tracker</span>
-                <span class="rounded-md bg-slate-900 px-2 py-1 text-[9px] font-bold uppercase tracking-wider">Soon</span>
-            </div>
-            <div class="flex items-center justify-between rounded-xl px-3 py-3 text-sm text-slate-500">
+                <span class="rounded-md bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">Open</span>
+            </a>
+            <a href="<?= Security::escape($baseUrl) ?>/upgrades/planner" class="flex items-center justify-between rounded-xl px-3 py-3 text-sm text-slate-300 transition hover:bg-slate-900 hover:text-white">
                 <span class="flex items-center gap-3"><span class="text-lg">▤</span> Upgrade planner</span>
-                <span class="rounded-md bg-slate-900 px-2 py-1 text-[9px] font-bold uppercase tracking-wider">Soon</span>
-            </div>
+                <span class="rounded-md bg-emerald-400/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300">Open</span>
+            </a>
         </nav>
 
         <div class="border-t border-white/5 p-4">
